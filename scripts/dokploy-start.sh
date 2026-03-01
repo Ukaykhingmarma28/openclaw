@@ -48,6 +48,10 @@ else
   echo "[openclaw] Config already exists — skipping onboarding."
 fi
 
+# Allow the Control UI when behind a reverse proxy (e.g. Dokploy/nginx).
+# Host-header fallback is safe here because the proxy sets the Host header to the configured domain.
+openclaw config set gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback true
+
 echo "[openclaw] Starting gateway on port ${OPENCLAW_GATEWAY_PORT:-18789}..."
 exec openclaw gateway \
   --port "${OPENCLAW_GATEWAY_PORT:-18789}" \
