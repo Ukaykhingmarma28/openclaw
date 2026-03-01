@@ -1,0 +1,41 @@
+services:
+  openclaw:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "18789:18789"
+    volumes:
+      - openclaw-data:/home/node/.openclaw
+    environment:
+      HOME: /home/node
+      NODE_ENV: production
+
+      # Gateway settings
+      OPENCLAW_GATEWAY_PORT: "18789"
+      OPENCLAW_GATEWAY_BIND: lan
+      OPENCLAW_GATEWAY_AUTH: token
+
+      # ── Set these in Dokploy's Environment Variables panel ──────────────
+      # Required: a secret token clients use to authenticate with the gateway
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN}
+
+      # AI provider — defaulting to OpenRouter
+      OPENCLAW_AUTH_CHOICE: ${OPENCLAW_AUTH_CHOICE:-openrouter-api-key}
+
+      # OpenRouter API key (get one at https://openrouter.ai/keys)
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      # ────────────────────────────────────────────────────────────────────
+
+    command: ["bash", "/app/scripts/dokploy-start.sh"]
+
+    healthcheck:
+      test: ["CMD-SHELL", "node /app/openclaw.mjs health --timeout 5000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s   # allow time for first-boot onboarding
+
+volumes:
+  openclaw-data:
