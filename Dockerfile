@@ -63,6 +63,9 @@ ENV NODE_ENV=production
 # This reduces the attack surface by preventing container escape via root privileges
 USER node
 
+# Pre-create config dir as node user so named volume mounts inherit correct ownership.
+RUN mkdir -p /home/node/.openclaw
+
 # Start gateway server with default config.
 # Binds to loopback (127.0.0.1) by default for security.
 #
